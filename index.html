@@ -16,13 +16,13 @@
 }
 
 body {
-  background: #ffffff;
+  background: #08142f;
   color: white;
-  padding: 30px;
+  padding: 20px;
   overflow-x: hidden;
 }
 
-/* animation background clouds */
+/* animation background */
 body::before {
   content: "";
   position: fixed;
@@ -40,22 +40,23 @@ body::before {
   100% { transform: translate(0,0); }
 }
 
+/* 🔥 FULL WIDTH */
 .container {
-  max-width: 1200px;
-  margin: auto;
+  width: 100%;
+  max-width: 100%; /* supprimé blocage */
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 25px;
 }
 
-/* ===== TODAY CARD ===== */
+/* TODAY */
 .today {
+  width: 100%;
   background: linear-gradient(135deg, #102a54, #08142f);
   border-radius: 25px;
   padding: 30px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  position: relative;
-  overflow: hidden;
   animation: fadeIn 1s ease;
 }
 
@@ -65,7 +66,7 @@ body::before {
 }
 
 .location {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
 }
 
@@ -82,8 +83,7 @@ body::before {
 }
 
 .temp {
-  font-size: 70px;
-  font-weight: 600;
+  font-size: 80px;
   animation: pulse 2s infinite;
 }
 
@@ -94,22 +94,20 @@ body::before {
 }
 
 .icon {
-  font-size: 70px;
-  animation: float 3s ease-in-out infinite;
+  font-size: 80px;
+  animation: float 3s infinite;
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
+  0% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  100% { transform: translateY(0); }
 }
 
 .desc {
   opacity: 0.8;
-  margin-top: 5px;
 }
 
-/* details */
 .details {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -119,7 +117,7 @@ body::before {
 
 .box {
   background: rgba(255,255,255,0.06);
-  padding: 15px;
+  padding: 18px;
   border-radius: 15px;
   text-align: center;
   transition: 0.3s;
@@ -130,38 +128,34 @@ body::before {
   background: rgba(255,255,255,0.12);
 }
 
-/* forecast */
+/* FORECAST FULL WIDTH */
 .forecast {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 cases = 5 colonnes */
-  gap: 16px;
   width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 18px;
 }
 
-/* chaque case devient plus large + plus "premium" */
 .day {
   background: #102a54;
-  padding: 22px;
+  padding: 25px;
   border-radius: 18px;
   text-align: center;
-  transition: 0.3s;
-
-  min-height: 140px;  /* 👈 plus grand */
+  min-height: 150px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 10px;
+  transition: 0.3s;
 }
 
-/* effet hover plus moderne */
 .day:hover {
-  transform: translateY(-8px);
+  transform: translateY(-10px);
   background: #2f5085b9;
 }
 
-/* icône plus visible */
 .day div {
-  font-size: 30px !important;
+  font-size: 32px !important;
 }
 
 @media(max-width: 900px){
@@ -175,9 +169,7 @@ body::before {
 
 <div class="container">
 
-  <!-- TODAY -->
   <div class="today">
-
     <div>
       <div class="location" id="city">Chargement...</div>
       <div class="date" id="date"></div>
@@ -188,7 +180,6 @@ body::before {
         <div class="temp" id="temp">--°</div>
         <div class="desc" id="desc">...</div>
       </div>
-
       <div class="icon" id="icon">⛅</div>
     </div>
 
@@ -198,10 +189,8 @@ body::before {
       <div class="box"><h4>Vent</h4><p id="wind">--</p></div>
       <div class="box"><h4>Pression</h4><p id="pressure">--</p></div>
     </div>
-
   </div>
 
-  <!-- FORECAST -->
   <div class="forecast" id="forecast"></div>
 
 </div>
@@ -209,7 +198,6 @@ body::before {
 <script>
 const API_KEY = "064f40f27a68541ca0db452cd3194820";
 
-// date
 document.getElementById("date").innerText =
 new Date().toLocaleString("fr-FR", {
   weekday: "short",
@@ -219,7 +207,6 @@ new Date().toLocaleString("fr-FR", {
   minute: "2-digit"
 });
 
-// icones météo
 function getIcon(main){
   switch(main){
     case "Clear": return "☀️";
@@ -230,13 +217,10 @@ function getIcon(main){
   }
 }
 
-// météo actuelle
 function getWeather(lat, lon){
-
 fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=fr&appid=${API_KEY}`)
 .then(res => res.json())
 .then(data => {
-
   document.getElementById("city").innerText = data.name + ", " + data.sys.country;
   document.getElementById("temp").innerText = Math.round(data.main.temp) + "°";
   document.getElementById("desc").innerText = data.weather[0].description;
@@ -246,46 +230,38 @@ fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&uni
   document.getElementById("humidity").innerText = data.main.humidity + "%";
   document.getElementById("wind").innerText = data.wind.speed + " km/h";
   document.getElementById("pressure").innerText = data.main.pressure + " hPa";
-
 });
 }
 
-// forecast
 function getForecast(lat, lon){
-
 fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=fr&appid=${API_KEY}`)
 .then(res => res.json())
 .then(data => {
-
   const container = document.getElementById("forecast");
   container.innerHTML = "";
 
   const daily = data.list.filter((item, index) => index % 8 === 0);
 
-  daily.slice(0,7).forEach(d => {
+  daily.slice(0,5).forEach(d => {
     const date = new Date(d.dt_txt);
     container.innerHTML += `
       <div class="day">
         <h4>${date.toLocaleDateString("fr-FR",{weekday:"short"})}</h4>
-        <div style="font-size:24px">${getIcon(d.weather[0].main)}</div>
+        <div>${getIcon(d.weather[0].main)}</div>
         <p>${Math.round(d.main.temp)}°</p>
       </div>
     `;
   });
-
 });
 }
 
-// localisation automatique
 navigator.geolocation.getCurrentPosition(pos => {
   getWeather(pos.coords.latitude, pos.coords.longitude);
   getForecast(pos.coords.latitude, pos.coords.longitude);
 }, () => {
-  // fallback Tunis
   getWeather(36.8065, 10.1815);
   getForecast(36.8065, 10.1815);
 });
-
 </script>
 
 </body>
