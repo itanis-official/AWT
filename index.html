@@ -1,292 +1,972 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Météo Live Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Intranet - Dashboard Complet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        :root {
+            --primary-dark: #102a54;
+            --secondary-dark: #08142f;
+            --white: #ffffff;
+            --light-gray: #f5f7fa;
+            --text-primary: #1a1a1a;
+            --text-secondary: #6b7280;
+            --accent-blue: #3b82f6;
+            --hover-shadow: 0 20px 40px rgba(16, 42, 84, 0.15);
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+        body {
+            background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Animation background clouds */
+        body::before {
+            content: "";
+            position: fixed;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 20%, rgba(16, 42, 84, 0.03), transparent 40%),
+                        radial-gradient(circle at 80% 30%, rgba(59, 130, 246, 0.02), transparent 40%);
+            animation: moveBg 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes moveBg {
+            0% { transform: translate(0,0); }
+            50% { transform: translate(-5%, -5%); }
+            100% { transform: translate(0,0); }
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(8, 20, 47, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .header h1 {
+            color: var(--white);
+            font-size: 2.25rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1rem;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== CONTAINER PRINCIPAL ===== */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* ===== MÉTÉO SECTION ===== */
+        .weather-section {
+            margin-bottom: 2rem;
+        }
+
+        .today {
+            background: linear-gradient(135deg, #102a54, #08142f);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 1s ease;
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .location {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .date {
+            font-size: 13px;
+            opacity: 0.7;
+            color: white;
+        }
+
+        .main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+        }
+
+        .temp {
+            font-size: 70px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .icon {
+            font-size: 70px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .desc {
+            opacity: 0.8;
+            margin-top: 5px;
+            color: white;
+        }
+
+        /* Details météo */
+        .details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .box {
+            background: rgba(255,255,255,0.08);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            transition: 0.3s;
+            color: white;
+        }
+
+        .box:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .box h4 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .box p {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        /* Forecast */
+        .forecast {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-top: 1.5rem;
+        }
+
+        .day {
+            background: linear-gradient(135deg, #102a54, #1a3a6e);
+            padding: 22px;
+            border-radius: 18px;
+            text-align: center;
+            transition: 0.3s;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .day:hover {
+            transform: translateY(-8px);
+            background: linear-gradient(135deg, #1a3a6e, #274b86);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .day h4 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .day div {
+            font-size: 30px !important;
+        }
+
+        .day p {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* ===== MENU NAVIGATION ===== */
+        .menu-section {
+            margin-top: 2rem;
+        }
+
+        .section-title {
+            color: var(--text-primary);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-left: 0.5rem;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .menu-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(16, 42, 84, 0.08);
+        }
+
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-dark) 0%, var(--accent-blue) 100%);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--hover-shadow);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .menu-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .menu-card:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--accent-blue) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--white);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(16, 42, 84, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .menu-card:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .card-arrow {
+            width: 32px;
+            height: 32px;
+            background: rgba(16, 42, 84, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .card-arrow svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--primary-dark);
+            stroke-width: 2.5;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-card:hover .card-arrow {
+            background: var(--primary-dark);
+        }
+
+        .menu-card:hover .card-arrow svg {
+            stroke: var(--white);
+            transform: translateX(3px);
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-title {
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.3px;
+            line-height: 1.4;
+        }
+
+        .card-number {
+            color: var(--accent-blue);
+            font-size: 0.875rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 300;
+            line-height: 1.6;
+            margin-top: 0.75rem;
+            opacity: 0.9;
+        }
+
+        /* Icônes personnalisées */
+        .icon-commercial::before { content: '📊'; }
+        .icon-juridique::before { content: '⚖️'; }
+        .icon-gestion::before { content: '💼'; }
+        .icon-rh::before { content: '👥'; }
+        .icon-qualite::before { content: '✓'; font-size: 2rem; }
+        .icon-documentation::before { content: '📚'; }
+        .icon-modeles::before { content: '📋'; }
+        .icon-it::before { content: '💻'; }
+
+        /* Animation d'entrée */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu-card {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .menu-card:nth-child(1) { animation-delay: 0.1s; }
+        .menu-card:nth-child(2) { animation-delay: 0.15s; }
+        .menu-card:nth-child(3) { animation-delay: 0.2s; }
+        .menu-card:nth-child(4) { animation-delay: 0.25s; }
+        .menu-card:nth-child(5) { animation-delay: 0.3s; }
+        .menu-card:nth-child(6) { animation-delay: 0.35s; }
+        .menu-card:nth-child(7) { animation-delay: 0.4s; }
+        .menu-card:nth-child(8) { animation-delay: 0.45s; }
+
+        /* Focus pour accessibilité */
+        .menu-card:focus {
+            outline: 3px solid var(--accent-blue);
+            outline-offset: 2px;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .menu-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .forecast {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .header p {
+                font-size: 0.9rem;
+            }
+
+            .main-container {
+                padding: 1.5rem;
+            }
+
+            .today {
+                padding: 20px;
+            }
+
+            .temp {
+                font-size: 50px;
+            }
+
+            .icon {
+                font-size: 50px;
+            }
+
+            .details {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .forecast {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+
+            .menu-card {
+                padding: 1.5rem;
+            }
+
+            .card-title {
+                font-size: 1.125rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .temp {
+                font-size: 40px;
+            }
+
+            .icon {
+                font-size: 40px;
+            }
+
+            .menu-card {
+                padding: 1.25rem;
+            }
+
+            .card-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
+            }
+
+            .day {
+                padding: 15px;
+                min-height: 120px;
+            }
+
+            .day div {
+                font-size: 24px !important;
+            }
+        }
+        /* ===== SECTION ===== */
+.portal-section {
+    margin-top: 60px;
+    padding: 20px;
 }
 
-body {
-  background: #ffffff;
-  color: white;
-  padding: 30px;
-  overflow-x: hidden;
+/* title */
+.portal-title {
+    font-size: 22px;
+    margin-bottom: 25px;
+    font-weight: 600;
 }
 
-/* animation background clouds */
-body::before {
-  content: "";
-  position: fixed;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 40%),
-              radial-gradient(circle at 80% 30%, rgba(255,255,255,0.05), transparent 40%);
-  animation: moveBg 20s linear infinite;
-  z-index: -1;
+/* grid */
+.portal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 20px;
 }
 
-@keyframes moveBg {
-  0% { transform: translate(0,0); }
-  50% { transform: translate(-5%, -5%); }
-  100% { transform: translate(0,0); }
+/* card */
+.portal-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 18px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
 }
 
-.container {
-  max-width: 1200px;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
+/* image */
+.portal-card img {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
 }
 
-/* ===== TODAY CARD ===== */
-.today {
-  background: linear-gradient(135deg, #102a54, #08142f);
-  border-radius: 25px;
-  padding: 30px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  position: relative;
-  overflow: hidden;
-  animation: fadeIn 1s ease;
+/* text */
+.portal-card span {
+    display: block;
+    font-size: 13px;
+    opacity: 0.8;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+/* hover */
+.portal-card:hover {
+    transform: translateY(-6px);
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
-
-.location {
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.date {
-  font-size: 13px;
-  opacity: 0.7;
-}
-
-.main {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 25px;
-}
-
-.temp {
-  font-size: 70px;
-  font-weight: 600;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.icon {
-  font-size: 70px;
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
-.desc {
-  opacity: 0.8;
-  margin-top: 5px;
-}
-
-/* details */
-.details {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-  margin-top: 25px;
-}
-
-.box {
-  background: rgba(255,255,255,0.06);
-  padding: 15px;
-  border-radius: 15px;
-  text-align: center;
-  transition: 0.3s;
-}
-
-.box:hover {
-  transform: translateY(-5px);
-  background: rgba(255,255,255,0.12);
-}
-
-/* forecast */
-.forecast {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 cases = 5 colonnes */
-  gap: 16px;
-  width: 100%;
-}
-
-/* chaque case devient plus large + plus "premium" */
-.day {
-  background: #102a54;
-  padding: 22px;
-  border-radius: 18px;
-  text-align: center;
-  transition: 0.3s;
-
-  min-height: 140px;  /* 👈 plus grand */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-}
-
-/* effet hover plus moderne */
-.day:hover {
-  transform: translateY(-8px);
-  background: #2f5085b9;
-}
-
-/* icône plus visible */
-.day div {
-  font-size: 30px !important;
-}
-
-@media(max-width: 900px){
-  .details { grid-template-columns: repeat(2, 1fr); }
-  .forecast { grid-template-columns: repeat(2, 1fr); }
-}
-</style>
+    </style>
 </head>
-
 <body>
 
-<div class="container">
 
-  <!-- TODAY -->
-  <div class="today">
+    <!-- CONTAINER PRINCIPAL -->
+    <div class="main-container">
+        
+        <!-- ===== SECTION MÉTÉO ===== -->
+        <div class="weather-section">
+            <!-- Carte météo du jour -->
+            <div class="today">
+                <div>
+                    <div class="location" id="city">Chargement...</div>
+                    <div class="date" id="date"></div>
+                </div>
 
-    <div>
-      <div class="location" id="city">Chargement...</div>
-      <div class="date" id="date"></div>
+                <div class="main">
+                    <div>
+                        <div class="temp" id="temp">--°</div>
+                        <div class="desc" id="desc">...</div>
+                    </div>
+                    <div class="icon" id="icon">⛅</div>
+                </div>
+
+                <div class="details">
+                    <div class="box"><h4>Ressenti</h4><p id="feels">--</p></div>
+                    <div class="box"><h4>Humidité</h4><p id="humidity">--</p></div>
+                    <div class="box"><h4>Vent</h4><p id="wind">--</p></div>
+                    <div class="box"><h4>Pression</h4><p id="pressure">--</p></div>
+                </div>
+            </div>
+
+            <!-- Prévisions -->
+            <div class="forecast" id="forecast"></div>
+        </div>
+    <!-- HEADER -->
+    <header class="header">
+        <h1>Portail Intranet</h1>
+        <p>Accédez rapidement à tous vos services et ressources d'entreprise</p>
+    </header>
+        <!-- ===== SECTION MENU NAVIGATION ===== -->
+        <div class="menu-section">
+            <h2 class="section-title">Services & Ressources</h2>
+            <div class="menu-grid">
+                <!-- Commercial & Marketing -->
+                <div class="menu-card"  data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Commercial%26Marketing"
+     tabindex="0" 
+     role="button" 
+     aria-label="Accéder au module Commercial & Marketing">
+
+                    <div class="card-header">
+                        <div class="card-icon icon-commercial"></div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-number">I</div>
+                        <h2 class="card-title">Commercial & Marketing</h2>
+                        <p class="card-description">Outils de vente, CRM, campagnes et stratégies marketing</p>
+                    </div>
+                </div>
+
+                <!-- Juridique -->
+                <div class="menu-card" 
+     data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Juridique"
+     tabindex="0" role="button" aria-label="Accéder au module Juridique">
+                    <div class="card-header">
+                        <div class="card-icon icon-juridique"></div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-number">II</div>
+                        <h2 class="card-title">Juridique</h2>
+                        <p class="card-description">Contrats, conformité légale et conseil juridique</p>
+                    </div>
+                </div>
+
+                <!-- Gestion -->
+                <div class="menu-card" 
+     data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Gestion"
+     tabindex="0" role="button" aria-label="Accéder au module Gestion">
+                    <div class="card-header">
+                        <div class="card-icon icon-gestion"></div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-number">III</div>
+                        <h2 class="card-title">Gestion</h2>
+                        <p class="card-description">Finance, comptabilité et pilotage budgétaire</p>
+                    </div>
+                </div>
+
+                <!-- Ressources Humaines -->
+                <div class="menu-card" 
+     data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Ressources-Humaines"
+     tabindex="0" role="button" aria-label="Accéder au module RH">
+                    <div class="card-header">
+                        <div class="card-icon icon-rh"></div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-number">IV</div>
+                        <h2 class="card-title">Ressources Humaines (RH)</h2>
+                        <p class="card-description">Recrutement, formation, paie et gestion du personnel</p>
+                    </div>
+                </div>
+
+                <!-- Qualité & Conformité -->
+                <div class="menu-card" 
+     data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Qualit%C3%A9%20%26%20Conformit%C3%A9"
+     tabindex="0" role="button" aria-label="Accéder au module Qualité">
+                    <div class="card-header">
+                        <div class="card-icon icon-qualite"></div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-number">V</div>
+                        <h2 class="card-title">Qualité & Conformité</h2>
+                        <p class="card-description">Normes ISO, audits et processus d'amélioration continue</p>
+                    </div>
+                </div>
+
+                <!-- Documentation -->
+                <div class="menu-card" 
+     data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Documentation"
+     tabindex="0" role="button" aria-label="Accéder au module Documentation">
+                    <div class="card-header">
+                        <div class="card-icon icon-documentation"></div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-number">X</div>
+                        <h2 class="card-title">Documentation</h2>
+                        <p class="card-description">Guides, procédures et base de connaissances</p>
+                    </div>
+                </div>
+
+                <!-- Modèles de travail -->
+                <div class="menu-card" 
+     data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Mod%C3%A8les%20de%20travail"
+     tabindex="0" role="button" aria-label="Accéder aux modèles de travail">
+                    <div class="card-header">
+                        <div class="card-icon icon-modeles"></div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-number">XI</div>
+                        <h2 class="card-title">Modèles de travail</h2>
+                        <p class="card-description">Templates, formulaires et documents standardisés</p>
+                    </div>
+                </div>
+
+                <!-- IT & système d'information -->
+               <div class="menu-card" 
+     data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/IT%20&%20syst%C3%A8me%20d'info"
+     tabindex="0" role="button" aria-label="Accéder au module IT">
+                    <div class="card-header">
+                        <div class="card-icon icon-it"></div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-number">XII</div>
+                        <h2 class="card-title">IT & système d'information</h2>
+                        <p class="card-description">Support informatique, applications et infrastructure</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ================= PORTAIL LOGOS ================= -->
+<div class="portal-section">
+
+    <h2 class="portal-title">Accès rapide</h2>
+
+    <div class="portal-grid">
+
+        <div class="portal-card" data-url="https://www.tunisieindustrie.nat.tn/fr/doc.asp?docid=753&mcat=22&mrub=178">
+            <img src="https://www.tunisieindustrie.nat.tn/fr/images/bg/banner.png" alt="">
+            
+        </div>
+
+        <div class="portal-card" data-url="https://jibaya.tn/">
+            <img src="https://awtauditconseil.sharepoint.com/:i:/s/AWT-Cloud/IQD2V-sAo2a_TbgWCkF90Bd5AZA2o-1gHqQvhGNxXpWUu6c?e=wE6522" alt="">
+            
+        </div>
+
+        <div class="portal-card" data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Gestion">
+            <img src="images/gestion.png" alt="">
+            
+        </div>
+
+        <div class="portal-card" data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Ressources-Humaines">
+            <img src="images/rh.png" alt="">
+            <span>RH</span>
+        </div>
+
+        <div class="portal-card" data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/IT%20&%20syst%C3%A8me%20d'info">
+            <img src="images/it.png" alt="">
+            <span>IT</span>
+        </div>
+
+        <div class="portal-card" data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Documentation">
+            <img src="images/doc.png" alt="">
+            <span>Docs</span>
+        </div>
+
+        <div class="portal-card" data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Mod%C3%A8les%20de%20travail">
+            <img src="images/modele.png" alt="">
+            <span>Modèles</span>
+        </div>
+
+        <div class="portal-card" data-url="https://awtauditconseil.sharepoint.com/sites/AWT-Cloud/Qualit%C3%A9%20%26%20Conformit%C3%A9">
+            <img src="images/qualite.png" alt="">
+            <span>Qualité</span>
+        </div>
+
     </div>
-
-    <div class="main">
-      <div>
-        <div class="temp" id="temp">--°</div>
-        <div class="desc" id="desc">...</div>
-      </div>
-
-      <div class="icon" id="icon">⛅</div>
-    </div>
-
-    <div class="details">
-      <div class="box"><h4>Ressenti</h4><p id="feels">--</p></div>
-      <div class="box"><h4>Humidité</h4><p id="humidity">--</p></div>
-      <div class="box"><h4>Vent</h4><p id="wind">--</p></div>
-      <div class="box"><h4>Pression</h4><p id="pressure">--</p></div>
-    </div>
-
-  </div>
-
-  <!-- FORECAST -->
-  <div class="forecast" id="forecast"></div>
 
 </div>
+    </div>
 
-<script>
-const API_KEY = "064f40f27a68541ca0db452cd3194820";
+    <script>
+        const API_KEY = "064f40f27a68541ca0db452cd3194820";
 
-// date
-document.getElementById("date").innerText =
-new Date().toLocaleString("fr-FR", {
-  weekday: "short",
-  day: "2-digit",
-  month: "short",
-  hour: "2-digit",
-  minute: "2-digit"
+        // Date actuelle
+        document.getElementById("date").innerText = new Date().toLocaleString("fr-FR", {
+            weekday: "short",
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        // Icônes météo
+        function getIcon(main) {
+            switch(main) {
+                case "Clear": return "☀️";
+                case "Clouds": return "⛅";
+                case "Rain": return "🌧️";
+                case "Thunderstorm": return "🌩️";
+                case "Snow": return "❄️";
+                case "Mist":
+                case "Fog": return "🌫️";
+                default: return "🌤️";
+            }
+        }
+
+        // Météo actuelle
+        function getWeather(lat, lon) {
+            fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=fr&appid=${API_KEY}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("city").innerText = data.name + ", " + data.sys.country;
+                    document.getElementById("temp").innerText = Math.round(data.main.temp) + "°";
+                    document.getElementById("desc").innerText = data.weather[0].description;
+                    document.getElementById("icon").innerText = getIcon(data.weather[0].main);
+                    document.getElementById("feels").innerText = Math.round(data.main.feels_like) + "°";
+                    document.getElementById("humidity").innerText = data.main.humidity + "%";
+                    document.getElementById("wind").innerText = Math.round(data.wind.speed * 3.6) + " km/h";
+                    document.getElementById("pressure").innerText = data.main.pressure + " hPa";
+                });
+        }
+
+        // Prévisions
+        function getForecast(lat, lon) {
+            fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=fr&appid=${API_KEY}`)
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById("forecast");
+                    container.innerHTML = "";
+                    const daily = data.list.filter((item, index) => index % 8 === 0);
+                    
+                    daily.slice(0, 5).forEach(d => {
+                        const date = new Date(d.dt_txt);
+                        container.innerHTML += `
+                            <div class="day">
+                                <h4>${date.toLocaleDateString("fr-FR", {weekday:"short"})}</h4>
+                                <div>${getIcon(d.weather[0].main)}</div>
+                                <p>${Math.round(d.main.temp)}°</p>
+                            </div>
+                        `;
+                    });
+                });
+        }
+
+        // Localisation automatique
+        navigator.geolocation.getCurrentPosition(pos => {
+            getWeather(pos.coords.latitude, pos.coords.longitude);
+            getForecast(pos.coords.latitude, pos.coords.longitude);
+        }, () => {
+            // Fallback Tunis
+            getWeather(36.8065, 10.1815);
+            getForecast(36.8065, 10.1815);
+        });
+
+        // Gestion des clics sur les cartes du menu
+        document.querySelectorAll('.menu-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.querySelector('.card-title').textContent;
+                console.log('Navigation vers: ' + title);
+                // Ajoutez ici votre logique de navigation
+                // window.location.href = 'url-de-destination';
+            });
+
+            // Accessibilité clavier
+            card.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+
+        document.querySelectorAll('.menu-card').forEach(card => {
+    card.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        if (url) {
+            window.open(url, '_blank'); // ouvre SharePoint dans nouvel onglet
+        }
+    });
+document.querySelectorAll('.portal-card').forEach(card => {
+    card.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        if (url) {
+            window.open(url, '_blank');
+        }
+    });
 });
-
-// icones météo
-function getIcon(main){
-  switch(main){
-    case "Clear": return "☀️";
-    case "Clouds": return "⛅";
-    case "Rain": return "🌧️";
-    case "Thunderstorm": return "🌩️";
-    default: return "🌤️";
-  }
-}
-
-// météo actuelle
-function getWeather(lat, lon){
-
-fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=fr&appid=${API_KEY}`)
-.then(res => res.json())
-.then(data => {
-
-  document.getElementById("city").innerText = data.name + ", " + data.sys.country;
-  document.getElementById("temp").innerText = Math.round(data.main.temp) + "°";
-  document.getElementById("desc").innerText = data.weather[0].description;
-  document.getElementById("icon").innerText = getIcon(data.weather[0].main);
-
-  document.getElementById("feels").innerText = Math.round(data.main.feels_like) + "°";
-  document.getElementById("humidity").innerText = data.main.humidity + "%";
-  document.getElementById("wind").innerText = data.wind.speed + " km/h";
-  document.getElementById("pressure").innerText = data.main.pressure + " hPa";
-
+    // Accessibilité clavier (Entrée)
+    card.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const url = this.getAttribute('data-url');
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+    });
 });
-}
-
-// forecast
-function getForecast(lat, lon){
-
-fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=fr&appid=${API_KEY}`)
-.then(res => res.json())
-.then(data => {
-
-  const container = document.getElementById("forecast");
-  container.innerHTML = "";
-
-  const daily = data.list.filter((item, index) => index % 8 === 0);
-
-  daily.slice(0,7).forEach(d => {
-    const date = new Date(d.dt_txt);
-    container.innerHTML += `
-      <div class="day">
-        <h4>${date.toLocaleDateString("fr-FR",{weekday:"short"})}</h4>
-        <div style="font-size:24px">${getIcon(d.weather[0].main)}</div>
-        <p>${Math.round(d.main.temp)}°</p>
-      </div>
-    `;
-  });
-
-});
-}
-
-// localisation automatique
-navigator.geolocation.getCurrentPosition(pos => {
-  getWeather(pos.coords.latitude, pos.coords.longitude);
-  getForecast(pos.coords.latitude, pos.coords.longitude);
-}, () => {
-  // fallback Tunis
-  getWeather(36.8065, 10.1815);
-  getForecast(36.8065, 10.1815);
-});
-
-</script>
-
+    </script>
 </body>
 </html>
